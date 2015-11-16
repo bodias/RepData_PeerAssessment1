@@ -1,21 +1,34 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 
 ## Loading and preprocessing the data
 The presented code below loads the libraries dplyr and ggplot2, and also read the csv file.  
-```{r quest1"}
+
+```r
 library(dplyr)
+```
+
+```
+## 
+## Attaching package: 'dplyr'
+## 
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+## 
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```r
 library(ggplot2)
 activity <- read.csv("activity.csv")
 ```
 
 ## What is mean total number of steps taken per day?  
-```{r}
+
+```r
 perday <- group_by(activity,date)
 perday <- summarise(perday,totalsteps = sum(steps))
 
@@ -23,21 +36,27 @@ perday.mean <- round(mean(perday$totalsteps,na.rm = TRUE),digits = 2)
 perday.median <- median(perday$totalsteps,na.rm = TRUE)
 hist(perday$totalsteps)  
 ```
+
+![](PA1_template_files/figure-html/quest2-1.png) 
   
-  The mean of total number of steps taken per day is `r perday.mean` and the median is `r perday.median`
+  The mean of total number of steps taken per day is 1.076619\times 10^{4} and the median is 10765
 
 ## What is the average daily activity pattern?
-```{r}
+
+```r
 daily <- group_by(activity,interval)
 daily <- summarise(daily,avgsteps = mean(steps,na.rm = TRUE))
 maxnuminterval <- daily[order(daily$avgsteps,decreasing=TRUE),][1,"interval"]
 qplot(interval,avgsteps,data=daily,geom="line")
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-1-1.png) 
   
-  The 5-minute interval containing the maximum number of steps is `r maxnuminterval`  
+  The 5-minute interval containing the maximum number of steps is 835  
   
 ## Imputing missing values
-```{r}
+
+```r
 ttlmissing <- sum(!complete.cases(activity))
 
 new <- merge(activity,daily,by.x = "interval",by.y = "interval")
@@ -52,14 +71,16 @@ newperday <- summarise(newperday,totalsteps = sum(steps))
 newperday.mean <- mean(newperday$totalsteps)
 newperday.median <-median(newperday$totalsteps)
 hist(newperday$totalsteps)
-
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png) 
   
-  The total count of missing values is `r ttlmissing`  
-  The mean of total number of steps taken per day, after imputing missing data, is `r newperday.mean` and the median is `r newperday.median`  
+  The total count of missing values is 2304  
+  The mean of total number of steps taken per day, after imputing missing data, is 1.0765639\times 10^{4} and the median is 1.0762\times 10^{4}  
   
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r}
+
+```r
 new$dow<-weekdays(as.POSIXlt(new$date,format = "%Y-%m-%d"),abbreviate = TRUE)
 new$weekday <- ifelse(new$dow=="Sat" | new$dow=="Sun","Weekend","Weekday")
 new$weekday <- factor(new$weekday)
@@ -70,3 +91,5 @@ newdaily <- summarise(newdaily,avgsteps = mean(steps,na.rm = TRUE))
 
 qplot(interval,avgsteps,data=newdaily,geom="line",facets = weekday ~ .)
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png) 
